@@ -62,6 +62,37 @@ monitui --enable <monitor>
 monitui --disable <monitor>
 ```
 
+### Hyprland Lua configuration
+
+monitui targets Hyprland's Lua configuration API (`hyprctl eval` and
+`hl.monitor`). The migration is tested with Hyprland 0.57.1. The old Hyprlang
+configuration format and `hyprctl keyword monitor` are no longer supported.
+
+Applied layouts are written to `$XDG_CONFIG_HOME/hypr/monitors.lua` (normally
+`~/.config/hypr/monitors.lua`). To restore them when Hyprland starts or reloads,
+add this **after your other monitor rules** in `hyprland.lua`:
+
+```lua
+local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
+local monitors = config_home .. "/hypr/monitors.lua"
+-- The file is created the first time monitui applies a layout.
+local file = io.open(monitors, "r")
+if file then
+    file:close()
+    dofile(monitors)
+end
+```
+
+For Home Manager, put this in the Lua `extraConfig` that generates your
+`hyprland.lua`. monitui writes its own fragment and leaves your main config alone.
+Remove any old `source = .../monitors.conf` include; monitui no longer updates
+that file. Existing JSON presets still work.
+
+Layouts apply immediately through Lua, including without the include above.
+Disabled outputs remain temporary: they are omitted from `monitors.lua`, and
+Hyprland's normal rules take effect for them on the next reload. Workspace
+assignments move workspaces at runtime rather than adding persistent rules.
+
 ### Keybindings
 
 | Key | Action |
@@ -105,7 +136,7 @@ This probably already exists. I had fun building this the way I wanted it. Feel 
 
 ## Requirements
 
-- Hyprland (obviously)
+- Hyprland with the Lua configuration API (tested with 0.57.1)
 - A terminal emulator
 - At least one monitor (technically optional but highly recommended)
 

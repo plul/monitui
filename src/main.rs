@@ -1,6 +1,7 @@
 mod app;
 mod apply;
 mod cli;
+mod hyprland;
 mod layout;
 mod monitor;
 mod preset;

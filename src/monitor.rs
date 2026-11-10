@@ -76,7 +76,7 @@ impl MonitorInfo {
 
     pub fn mode_string(&self) -> String {
         if self.selected_mode.is_some() {
-            format!("{}x{}@{:.0}", self.width, self.height, self.refresh_rate)
+            format!("{}x{}@{}", self.width, self.height, self.refresh_rate)
         } else {
             "preferred".to_string()
         }

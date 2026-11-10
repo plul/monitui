@@ -1,4 +1,4 @@
-use crate::{apply, monitor, preset};
+use crate::{apply, hyprland, monitor, preset};
 use std::process;
 
 pub fn print_help() {
@@ -177,22 +177,12 @@ pub fn set_workspace(workspace: u32, monitor_name: &str) {
 
     println!("Moving workspace {} to '{}'...", workspace, monitor_name);
 
-    // Use hyprctl to move the workspace
-    let output = std::process::Command::new("hyprctl")
-        .args(["dispatch", "moveworkspacetomonitor", &workspace.to_string(), monitor_name])
-        .output();
-
-    match output {
-        Ok(o) if o.status.success() => {
+    match hyprland::move_workspace(workspace, monitor_name) {
+        Ok(()) => {
             println!("✓ Successfully moved workspace {} to '{}'", workspace, monitor_name);
         }
-        Ok(o) => {
-            eprintln!("Error: hyprctl command failed:");
-            eprintln!("{}", String::from_utf8_lossy(&o.stderr));
-            process::exit(1);
-        }
         Err(e) => {
-            eprintln!("Error: Failed to run hyprctl: {}", e);
+            eprintln!("Error: {}", e);
             process::exit(1);
         }
     }
